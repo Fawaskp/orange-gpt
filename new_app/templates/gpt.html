@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+{% load static %}
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+    <style>
+        h1 {
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        input {
+            border-color: white;
+            border-radius: 7px;
+            background-color: transparent;
+            width: 80%;
+            height: 40px;
+            color: rgb(113, 255, 144);
+            border-top: 10px;
+            font-size: 20px;
+            outline: none;
+            caret-color: orange;
+            caret-shape: underscore;
+            padding-left: 23px;
+            font-weight: 800;
+        }
+
+        ::placeholder {
+            -webkit-text-fill-color: rgb(164, 164, 164);
+
+        }
+
+        #cover {
+
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            height: 40vh;
+            align-items: center;
+        }
+
+        p {
+            display: inline-block;
+            color: rgb(255, 255, 255);
+            font-family: 'Courier New', monospace;
+            width: fit-content;
+            font-size: 18px;
+
+                {
+                % if isResult=='True' %
+            }
+
+            animation: typing .7s;
+
+                {
+                % else %
+            }
+
+            animation: typing .3s;
+
+                {
+                % endif %
+            }
+
+            line-height:25px;
+        }
+
+        #typingContent {
+            color: rgb(113, 255, 144);
+        }
+
+        @keyframes typing {
+            from {
+                width: 0;
+            }
+
+            to {
+                width: max-content;
+            }
+        }
+    </style>
+</head>
+
+<body style="background-color: #004958;">
+    <div id="cover">
+        <h1 style="color: white;"><span style="color: orange;font-size: 41px;">O</span>range GPT</h1>
+
+        <form id="queryForm" method="post" style="width: 50%;display :flex;justify-content: space-between;">
+            {% csrf_token %}
+            <input {% if prompt %}value="{{prompt}}" {% endif %} id="wordInput" type="text" name="query"
+                placeholder="Type your prompt here">
+            <button id="submit-button"
+                style="border-radius: 7px;color: #004958;cursor: pointer; font-weight: bold;outline: none;border: none;padding: 0 27px;font-size: 23px;">Post</button>
+        </form>
+        <span id="warning-message" style="margin-top: -60px; margin-left: -510px;opacity: 0;">
+            <span style="color: orange; font-size: larger;">⚠</span>
+            <span style="color: white; font-family: Verdana, Geneva, Tahoma, sans-serif;">
+                it looks like you mispelled the word
+            </span>
+        </span>
+    </div>
+    <div style="display: flex; justify-content: center; max-width: 50%; margin: 0 auto;">
+        <p>
+            <span id="typedContent">
+
+
+            </span>
+            <span id="typingContent" style="color: #;">
+
+            </span>
+        </p>
+    </div>
+
+    <audio loop id="backgroundMusic">
+        <source src="{% static 'audio/typing-sound.mp3' %}" type="audio/mp3">
+    </audio>
+
+    <script type="text/javascript">
+
+        let currentIndex = 0;
+        const backgroundMusic = document.getElementById('backgroundMusic');
+
+        const originalContent = "{{result|safe}}"
+        const isResult = '{{is_result}}'
+        if (isResult) {
+            var typingSpeed = 57
+            if (isResult == 'False') {
+                typingSpeed = 30
+                document.getElementById('typingContent').style.color = 'red'
+            }
+            typeContent();
+            backgroundMusic.play();
+        }
+
+        function typeContent() {
+            const typedContentElement = document.getElementById('typedContent');
+            const typingContentElement = document.getElementById('typingContent');
+            if (originalContent[currentIndex] == ' ') {
+                const currentContent = originalContent.slice(0, currentIndex + 1);
+                typedContentElement.textContent = currentContent;
+                typingContentElement.textContent = '';
+            }
+            else {
+                typingContentElement.textContent += originalContent[currentIndex];
+            }
+
+            if (currentIndex === 0) {
+                backgroundMusic.play()
+            }
+            if (currentIndex < originalContent.length - 1) {
+                currentIndex++;
+                setTimeout(typeContent, typingSpeed);
+            } else {
+                backgroundMusic.pause()
+            }
+
+        }
+
+        function handleSubmit(e) {
+            e.preventDefault()
+            const inputValue = document.getElementById('wordInput').value.split(' ')
+            if (inputValue.length == 1) {
+                console.log('Here reached ...');
+                const myForm = document.getElementById('queryForm');
+                myForm.action = '/new/';
+                myForm.submit();
+            }
+            else {
+e.submit()
+            }
+        }
+    </script>
+</body>
+
+</html>
